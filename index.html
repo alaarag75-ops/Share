@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taeha Code Runner & Sharer</title>
+    
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #060913; color: #f1f5f9; }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .input-style {
+            background-color: rgba(10, 15, 30, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+        .input-style:focus { border-color: #3b82f6; outline: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between pb-10 select-none">
+
+    <!-- Header Navbar -->
+    <header class="w-full glass-card sticky top-0 z-30 p-3 border-b border-white/10">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black shadow-lg">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+                <span class="font-black text-base text-white tracking-wide">Taeha Code Runner</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openDevAuth()" class="text-xs bg-red-500/15 hover:bg-red-500/30 text-red-400 border border-red-500/40 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>الإدارة</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="max-w-4xl w-full mx-auto p-3 flex-1 space-y-4">
+        
+        <!-- Action Toolbar -->
+        <div class="glass-card rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2">
+            <input type="text" id="projectTitle" placeholder="اسم المشروع (مثال: زر نيون تفاعلي)..." class="input-style rounded-xl px-3 py-2 text-xs flex-1 min-w-[200px]">
+            
+            <div class="flex items-center gap-2">
+                <button onclick="runCode()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-play"></i> تشغيل
+                </button>
+                <button onclick="obfuscateCode()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-lock"></i> تشفير
+                </button>
+                <button onclick="downloadCode()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-download"></i> تحميل
+                </button>
+            </div>
+        </div>
+
+        <!-- Editor & Preview Split View -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Code Editor Box -->
+            <div class="glass-card rounded-2xl p-3 flex flex-col space-y-2">
+                <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                    <span class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-code"></i> محرر الأكواد (HTML / CSS / JS)
+                    </span>
+                    <button onclick="copyEditorCode()" class="text-[11px] bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1 rounded-lg border border-white/10">
+                        <i class="fa-regular fa-copy ml-1"></i>نسخ
+                    </button>
+                </div>
+                <textarea id="codeEditor" rows="14" placeholder="اكتب كود HTML/CSS/JS هنا..." class="w-full input-style rounded-xl p-3 font-mono text-xs text-emerald-400 resize-none h-[350px]">
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { background: #0f172a; color: #fff; font-family: sans-serif; display: flex; justify-center; align-items: center; height: 100vh; margin: 0; }
+    h1 { color: #38bdf8; text-shadow: 0 0 10px #38bdf8; }
+  </style>
+</head>
+<body>
+  <h1>Taeha Runner 🚀</h1>
+</body>
+</html></textarea>
+            </div>
+
+            <!-- Live Output Box -->
+            <div class="glass-card rounded-2xl p-3 flex flex-col space-y-2">
+                <div class="border-b border-white/10 pb-2">
+                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-desktop"></i> المعاينة الحية (Output)
+                    </span>
+                </div>
+                <iframe id="previewFrame" class="w-full h-[350px] bg-white rounded-xl border border-white/10"></iframe>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Dev Auth Modal -->
+    <div id="devAuthModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="glass-card rounded-3xl p-5 max-w-xs w-full text-center space-y-3 border-red-500/40">
+            <i class="fa-solid fa-shield-halved text-red-500 text-3xl"></i>
+            <h3 class="text-xs font-bold text-white">منطقة الوصول الخاص</h3>
+            <input type="password" id="devKeyInput" placeholder="أدخل كود الوصول السرّي" class="w-full input-style text-center font-mono text-red-400 rounded-xl p-2.5 text-xs uppercase">
+            <div class="flex gap-2">
+                <button onclick="closeDevAuth()" class="w-1/2 bg-gray-800 text-gray-300 py-2 rounded-xl text-xs font-bold">إلغاء</button>
+                <button onclick="verifyDev()" class="w-1/2 bg-red-600 hover:bg-red-500 text-white py-2 rounded-xl text-xs font-bold">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Developer Control Center -->
+    <div id="devDashboard" class="hidden fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 z-50">
+        <div class="glass-card relative z-10 rounded-3xl p-4 max-w-md w-full text-center space-y-4 border-red-500/50">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <span class="text-xs font-bold text-red-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-shield"></i> لوحة الإدارة العامة
+                </span>
+                <button onclick="closeDevDash()" class="text-gray-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-gray-300">أهلاً بك يا مدير المنصة! يمكنك إدارة التعديلات والتحكم بالنظام هنا.</p>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // تشغيل الكود في المعاينة الحية
+        function runCode() {
+            const code = document.getElementById('codeEditor').value;
+            const iframe = document.getElementById('previewFrame');
+            const documentFrame = iframe.contentDocument || iframe.contentWindow.document;
+            
+            documentFrame.open();
+            documentFrame.write(code);
+            documentFrame.close();
+        }
+
+        // تشفير الكود لحمايته (Base64 Wrapper)
+        function obfuscateCode() {
+            const editor = document.getElementById('codeEditor');
+            const rawCode = editor.value.trim();
+            if (!rawCode) return alert('يرجى كتابة كود لتشفيره!');
+
+            const encoded = btoa(unescape(encodeURIComponent(rawCode)));
+            const protectedCode = `<!-- Encrypted by Taeha Code Runner -->\n<script>document.write(decodeURIComponent(escape(atob("${encoded}"))));<\/script>`;
+            
+            editor.value = protectedCode;
+            alert('تم تشفير الكود بنجاح!');
+        }
+
+        // نسخ الكود
+        function copyEditorCode() {
+            const editor = document.getElementById('codeEditor');
+            navigator.clipboard.writeText(editor.value);
+            alert('تم نسخ الكود!');
+        }
+
+        // تحميل الكود كملف HTML
+        function downloadCode() {
+            const code = document.getElementById('codeEditor').value;
+            const title = document.getElementById('projectTitle').value.trim() || 'taeha-project';
+            
+            const blob = new Blob([code], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${title}.html`;
+            a.click();
+        }
+
+        // فتح وإغلاق لوحة المطور المشفرة (TAEHADEV)
+        function openDevAuth() { document.getElementById('devAuthModal').classList.remove('hidden'); }
+        function closeDevAuth() { document.getElementById('devAuthModal').classList.add('hidden'); }
+        function closeDevDash() { document.getElementById('devDashboard').classList.add('hidden'); }
+
+        function verifyDev() {
+            const input = document.getElementById('devKeyInput').value.trim();
+            // كود التحقق المشفر لرمز (TAEHADEV)
+            if (btoa(input) === "VEFFSEFERVY=") {
+                closeDevAuth();
+                document.getElementById('devDashboard').classList.remove('hidden');
+            } else {
+                alert('كود الوصول غير صحيح!');
+            }
+        }
+
+        // تشغيل الكود عند التحميل لأول مرة
+        window.addEventListener('DOMContentLoaded', runCode);
+    </script>
+</body>
+</html>
